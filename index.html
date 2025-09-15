@@ -105,7 +105,6 @@
     text-align: left;
     display: none; /* Inicialmente oculto */
   }
-
 </style>
 </head>
 <body>
@@ -127,6 +126,12 @@
     <p>Digite a senha de administrador:</p>
     <input type="password" id="senhaAdmin" placeholder="Senha">
     <button id="entrarAdmin">Entrar</button>
+
+    <div id="desbloqueioAdmin" style="display:none; margin-top:10px;">
+      <p>Digite o quarto que deseja desbloquear:</p>
+      <input type="text" id="quartoAdmin" placeholder="Ex: Lua 13">
+      <button id="desbloquearQuartoAdmin">Desbloquear Quarto</button>
+    </div>
   </div>
 
   <div id="mensagem"></div>
@@ -144,6 +149,7 @@ const modoClienteBtn = document.getElementById('modoClienteBtn');
 const modoAdminBtn = document.getElementById('modoAdminBtn');
 const cliente = document.getElementById('cliente');
 const admin = document.getElementById('admin');
+const desbloqueioAdminDiv = document.getElementById('desbloqueioAdmin');
 const mensagem = document.getElementById('mensagem');
 const listaHistorico = document.getElementById('listaHistorico');
 const historicoDiv = document.getElementById('historico');
@@ -161,22 +167,21 @@ function atualizarHistorico() {
     listaHistorico.appendChild(li);
   });
 }
-
-// Inicializa histórico, mas permanece oculto
 atualizarHistorico();
 
 modoClienteBtn.addEventListener('click', () => {
   cliente.style.display = 'block';
   admin.style.display = 'none';
+  desbloqueioAdminDiv.style.display = 'none';
   mensagem.textContent = '';
-  historicoDiv.style.display = 'none'; // Garantir que não aparece
+  historicoDiv.style.display = 'none';
 });
 
 modoAdminBtn.addEventListener('click', () => {
   admin.style.display = 'block';
   cliente.style.display = 'none';
   mensagem.textContent = '';
-  historicoDiv.style.display = 'none'; // Só mostrará após senha correta
+  historicoDiv.style.display = 'none';
 });
 
 document.getElementById('desbloquearQuarto').addEventListener('click', () => {
@@ -206,26 +211,27 @@ document.getElementById('entrarAdmin').addEventListener('click', () => {
   if (senha === '135') {
     mensagem.textContent = '🔓 Modo administrador ativado!';
     historicoDiv.style.display = 'block';
+    desbloqueioAdminDiv.style.display = 'block';
     painel.classList.add('brilho');
     somDesbloqueio.play();
     atualizarHistorico();
-
-    setTimeout(() => {
-      const quarto = prompt('Digite o quarto que deseja desbloquear:');
-      if (quarto) {
-        historico.push(`Administrador desbloqueou: ${quarto}`);
-        mensagem.textContent = `✨ Porta do quarto ${quarto} desbloqueada pelo administrador!`;
-        mensagem.classList.add('blink');
-        painel.classList.add('brilho');
-        somDesbloqueio.play();
-        atualizarHistorico();
-        setTimeout(() => { mensagem.classList.remove('blink'); painel.classList.remove('brilho'); }, 1500);
-      }
-    }, 200);
   } else {
     mensagem.textContent = '❌ Senha incorreta.';
     somErro.play();
   }
+});
+
+document.getElementById('desbloquearQuartoAdmin').addEventListener('click', () => {
+  const quarto = document.getElementById('quartoAdmin').value.trim();
+  if (!quarto) return;
+
+  mensagem.textContent = `✨ Porta do quarto ${quarto} desbloqueada pelo administrador!`;
+  mensagem.classList.add('blink');
+  painel.classList.add('brilho');
+  somDesbloqueio.play();
+  historico.push(`Administrador desbloqueou: ${quarto}`);
+  atualizarHistorico();
+  setTimeout(() => { mensagem.classList.remove('blink'); painel.classList.remove('brilho'); }, 1500);
 });
 </script>
 

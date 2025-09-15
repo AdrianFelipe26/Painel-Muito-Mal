@@ -17,7 +17,6 @@
     overflow: hidden;
   }
 
-  /* Fundo animado */
   @keyframes fundoPisca {
     0% { background-color: #1b0d2b; }
     50% { background-color: #2e0f44; }
@@ -104,6 +103,7 @@
     overflow-y: auto;
     font-size: 0.9rem;
     text-align: left;
+    display: none; /* Inicialmente oculto */
   }
 
 </style>
@@ -111,7 +111,7 @@
 <body>
 
 <div id="painel">
-  <h1>Painel do Hotel do Muito Mal</h1>
+  <h1>Painel do Hotel do Muito Mal, Muito Muito Muito Mal, Muito Muito Muito Muito Muito Mal.</h1>
   <div id="modos">
     <button id="modoClienteBtn">Modo Cliente</button>
     <button id="modoAdminBtn">Modo Administrador</button>
@@ -136,7 +136,6 @@
   </div>
 </div>
 
-<!-- Sons (adicionar depois) -->
 <audio id="somDesbloqueio" src="desbloqueio.mp3"></audio>
 <audio id="somErro" src="erro.mp3"></audio>
 
@@ -152,7 +151,7 @@ const somDesbloqueio = document.getElementById('somDesbloqueio');
 const somErro = document.getElementById('somErro');
 const painel = document.getElementById('painel');
 
-let historico = ['Quarto SOL22 aberto']; // Histórico já vem preenchido
+let historico = ['Quarto SOL 22 aberto']; // Histórico inicial
 
 function atualizarHistorico() {
   listaHistorico.innerHTML = '';
@@ -163,19 +162,21 @@ function atualizarHistorico() {
   });
 }
 
-// Inicializa histórico
+// Inicializa histórico, mas permanece oculto
 atualizarHistorico();
 
 modoClienteBtn.addEventListener('click', () => {
   cliente.style.display = 'block';
   admin.style.display = 'none';
   mensagem.textContent = '';
+  historicoDiv.style.display = 'none'; // Garantir que não aparece
 });
 
 modoAdminBtn.addEventListener('click', () => {
   admin.style.display = 'block';
   cliente.style.display = 'none';
   mensagem.textContent = '';
+  historicoDiv.style.display = 'none'; // Só mostrará após senha correta
 });
 
 document.getElementById('desbloquearQuarto').addEventListener('click', () => {

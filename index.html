@@ -1,160 +1,240 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Painel do Hotel</title>
-  <style>
-    body {
-      font-family: "Trebuchet MS", sans-serif;
-      background-color: #1a0f1f;
-      color: #e0d6eb;
-      text-align: center;
-      padding: 20px;
-    }
-    h1 {
-      color: #b084f5;
-      text-shadow: 0 0 8px #632a91;
-    }
-    .panel {
-      margin-top: 40px;
-      padding: 20px;
-      background: #2b1340;
-      border: 2px solid #b084f5;
-      border-radius: 15px;
-      display: inline-block;
-      box-shadow: 0 0 15px #632a91 inset;
-    }
-    .panel input {
-      padding: 10px;
-      border: none;
-      border-radius: 8px;
-      width: 220px;
-      background: #1a0f1f;
-      color: #e0d6eb;
-      margin-top: 10px;
-    }
-    .panel button {
-      padding: 10px 20px;
-      margin: 10px 5px;
-      background: #632a91;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    .panel button:hover {
-      background: #b084f5;
-    }
-    .history {
-      margin-top: 30px;
-      background: #140a1c;
-      border: 2px solid #632a91;
-      border-radius: 10px;
-      padding: 15px;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
-      text-align: left;
-      font-family: monospace;
-      color: #cdbce8;
-    }
-    .censored {
-      display: inline-block;
-      background: #000;
-      color: transparent;
-      padding: 0 5px;
-      animation: glitch 1s infinite steps(2, jump-none);
-    }
-    @keyframes glitch {
-      0% { background: #000; }
-      20% { background: #111; }
-      40% { background: #000; }
-      60% { background: #222; }
-      80% { background: #000; }
-      100% { background: #111; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Hotel do Muito Mal</title>
+<style>
+  body {
+    background-color: #1b0d2b;
+    color: #f0d7ff;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+  }
+
+  @keyframes fundoPisca {
+    0% { background-color: #1b0d2b; }
+    50% { background-color: #2e0f44; }
+    100% { background-color: #1b0d2b; }
+  }
+  body { animation: fundoPisca 6s infinite; }
+
+  #painel {
+    background-color: #2c143f;
+    border: 4px solid #7a2fff;
+    border-radius: 20px;
+    padding: 30px;
+    width: 350px;
+    text-align: center;
+    box-shadow: 0 0 20px #7a2fff;
+    transition: box-shadow 0.3s;
+  }
+
+  #painel.brilho {
+    box-shadow: 0 0 40px #d5aaff;
+  }
+
+  h1 {
+    margin-bottom: 20px;
+    font-size: 1.4rem;
+    color: #d5aaff;
+    text-shadow: 0 0 5px #fff, 0 0 10px #7a2fff;
+  }
+
+  button {
+    background-color: #7a2fff;
+    color: #fff;
+    border: none;
+    padding: 12px 18px;
+    margin: 10px 5px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    transition: 0.3s;
+    box-shadow: 0 0 10px #7a2fff;
+  }
+
+  button:hover {
+    background-color: #9f5fff;
+    box-shadow: 0 0 20px #d5aaff;
+  }
+
+  input {
+    width: 80%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 2px solid #7a2fff;
+    margin-top: 10px;
+    background-color: #3b1f55;
+    color: #fff;
+    font-weight: bold;
+    font-size: 1rem;
+    text-align: center;
+  }
+
+  #mensagem {
+    margin-top: 20px;
+    font-weight: bold;
+    font-size: 1rem;
+    color: #ffdf00;
+    text-shadow: 0 0 5px #fff, 0 0 10px #ffdf00;
+  }
+
+  .blink {
+    animation: blinkText 0.7s steps(1) infinite;
+  }
+
+  @keyframes blinkText {
+    50% { opacity: 0; }
+  }
+
+  #historico {
+    margin-top: 20px;
+    background-color: #3b1f55;
+    padding: 10px;
+    border-radius: 8px;
+    max-height: 120px;
+    overflow-y: auto;
+    font-size: 0.9rem;
+    text-align: left;
+    display: none; /* Inicialmente oculto */
+  }
+</style>
 </head>
 <body>
-  <h1>Painel do Hotel Do Muito Mal, Muito Muito Muito Mal, Muito Muito Muito Muito Muito Mal.</h1>
 
-  <div class="panel" id="modePanel">
-    <button onclick="setMode('cliente')">Modo Cliente</button>
-    <button onclick="setMode('admin')">Modo Administrador</button>
+<div id="painel">
+  <h1>Painel do Hotel do Muito Mal, Muito Muito Muito Mal, Muito Muito Muito Muito Muito Mal.</h1>
+  <div id="modos">
+    <button id="modoClienteBtn">Modo Cliente</button>
+    <button id="modoAdminBtn">Modo Administrador</button>
   </div>
 
-  <div class="panel" id="authPanel" style="display:none;">
-    <input type="password" id="adminPassword" placeholder="Digite a senha do administrador">
-    <button onclick="checkAdmin()">Entrar</button>
+  <div id="cliente" style="display:none;">
+    <p>Digite o nome do seu quarto:</p>
+    <input type="text" id="nomeQuarto" placeholder="Qual seu quarto?">
+    <button id="desbloquearQuarto">Desbloquear</button>
   </div>
 
-  <div class="panel" id="unlockPanel" style="display:none;">
-    <p id="modeLabel"></p>
-    <input type="text" id="passwordInput" placeholder="Digite a senha do quarto...">
-    <button onclick="unlockDoor()">Desbloquear</button>
+  <div id="admin" style="display:none;">
+    <p>Digite a senha de administrador:</p>
+    <input type="password" id="senhaAdmin" placeholder="Senha">
+    <button id="entrarAdmin">Entrar</button>
+
+    <div id="desbloqueioAdmin" style="display:none; margin-top:10px;">
+      <p>Digite o quarto que deseja desbloquear:</p>
+      <input type="text" id="quartoAdmin" placeholder="Ex: Lua 13">
+      <button id="desbloquearQuartoAdmin">Desbloquear Quarto</button>
+    </div>
   </div>
 
-  <div class="history" id="history" style="display:none;">
-    <p><strong>Histórico Recente de Portas Abertas:</strong></p>
-    <p>A porta <span class="censored">█████</span> foi desbloqueada.</p>
+  <div id="mensagem"></div>
+  <div id="historico">
+    <strong>Histórico Recente de Portas Abertas:</strong>
+    <ul id="listaHistorico"></ul>
   </div>
+</div>
 
-  <script>
-    let mode = "";
+<audio id="somDesbloqueio" src="desbloqueio.mp3"></audio>
+<audio id="somErro" src="erro.mp3"></audio>
 
-    function setMode(selectedMode) {
-      mode = selectedMode;
-      document.getElementById("modePanel").style.display = "none";
+<script>
+const modoClienteBtn = document.getElementById('modoClienteBtn');
+const modoAdminBtn = document.getElementById('modoAdminBtn');
+const cliente = document.getElementById('cliente');
+const admin = document.getElementById('admin');
+const desbloqueioAdminDiv = document.getElementById('desbloqueioAdmin');
+const mensagem = document.getElementById('mensagem');
+const listaHistorico = document.getElementById('listaHistorico');
+const historicoDiv = document.getElementById('historico');
+const somDesbloqueio = document.getElementById('somDesbloqueio');
+const somErro = document.getElementById('somErro');
+const painel = document.getElementById('painel');
 
-      if (mode === "admin") {
-        document.getElementById("authPanel").style.display = "block";
-      } else {
-        document.getElementById("unlockPanel").style.display = "block";
-        document.getElementById("modeLabel").innerText = "Modo Cliente";
-      }
-    }
+let historico = ['Quarto SOL 22 aberto']; // Histórico inicial
 
-    function checkAdmin() {
-      const pass = document.getElementById("adminPassword").value;
-      if (pass === "135") {
-        document.getElementById("authPanel").style.display = "none";
-        document.getElementById("unlockPanel").style.display = "block";
-        document.getElementById("modeLabel").innerText = "Modo Administrador";
-        document.getElementById("history").style.display = "block";
-      } else {
-        alert("Senha do administrador incorreta!");
-      }
-    }
+function atualizarHistorico() {
+  listaHistorico.innerHTML = '';
+  historico.slice(-10).forEach(item => {
+    const li = document.createElement('li');
+    li.textContent = item;
+    listaHistorico.appendChild(li);
+  });
+}
+atualizarHistorico();
 
-    function normalizeInput(input) {
-      return input.replace(/\s+/g, "").toUpperCase();
-    }
+modoClienteBtn.addEventListener('click', () => {
+  cliente.style.display = 'block';
+  admin.style.display = 'none';
+  desbloqueioAdminDiv.style.display = 'none';
+  mensagem.textContent = '';
+  historicoDiv.style.display = 'none';
+});
 
-    function unlockDoor() {
-      const input = normalizeInput(document.getElementById("passwordInput").value.trim());
-      let doorName = "";
+modoAdminBtn.addEventListener('click', () => {
+  admin.style.display = 'block';
+  cliente.style.display = 'none';
+  mensagem.textContent = '';
+  historicoDiv.style.display = 'none';
+});
 
-      if (input === "SOL22") {
-        doorName = "SOL22";
-      } else if (input === "CASTELO19") {
-        doorName = "Castelo XIX";
-      }
+document.getElementById('desbloquearQuarto').addEventListener('click', () => {
+  const quarto = document.getElementById('nomeQuarto').value.trim();
+  if (!quarto) {
+    mensagem.textContent = 'Por favor, digite um quarto.';
+    somErro.play();
+    return;
+  }
 
-      if (doorName) {
-        const history = document.getElementById("history");
-        if (mode === "admin") {
-          history.style.display = "block";
-        }
-        const newEntry = document.createElement("p");
-        newEntry.innerText = `A porta ${doorName} foi desbloqueada.`;
-        history.appendChild(newEntry);
-      } else {
-        alert("Senha incorreta!");
-      }
+  if (quarto.toLowerCase() === 'lua 13') {
+    mensagem.textContent = `✨ A porta do quarto ${quarto} foi desbloqueada! ✨`;
+    mensagem.classList.add('blink');
+    painel.classList.add('brilho');
+    somDesbloqueio.play();
+    historico.push(`Cliente desbloqueou: ${quarto}`);
+    atualizarHistorico();
+    setTimeout(() => { mensagem.classList.remove('blink'); painel.classList.remove('brilho'); }, 1500);
+  } else {
+    mensagem.textContent = `⚠ Quarto "${quarto}" não encontrado.`;
+    somErro.play();
+  }
+});
 
-      document.getElementById("passwordInput").value = "";
-    }
-  </script>
+document.getElementById('entrarAdmin').addEventListener('click', () => {
+  const senha = document.getElementById('senhaAdmin').value.trim();
+  if (senha === '135') {
+    mensagem.textContent = '🔓 Modo administrador ativado!';
+    historicoDiv.style.display = 'block';
+    desbloqueioAdminDiv.style.display = 'block';
+    painel.classList.add('brilho');
+    somDesbloqueio.play();
+    atualizarHistorico();
+  } else {
+    mensagem.textContent = '❌ Senha incorreta.';
+    somErro.play();
+  }
+});
+
+document.getElementById('desbloquearQuartoAdmin').addEventListener('click', () => {
+  const quarto = document.getElementById('quartoAdmin').value.trim();
+  if (!quarto) return;
+
+  mensagem.textContent = `✨ Porta do quarto ${quarto} desbloqueada pelo administrador!`;
+  mensagem.classList.add('blink');
+  painel.classList.add('brilho');
+  somDesbloqueio.play();
+  historico.push(`Administrador desbloqueou: ${quarto}`);
+  atualizarHistorico();
+  setTimeout(() => { mensagem.classList.remove('blink'); painel.classList.remove('brilho'); }, 1500);
+});
+</script>
+
 </body>
 </html>
+

@@ -105,6 +105,28 @@
     text-align: left;
     display: none; /* Inicialmente oculto */
   }
+
+  /* estilo e animação para censura (entrada padrão) */
+  .censored {
+    display:inline-block;
+    background:#000;
+    color:transparent;
+    padding:2px 8px;
+    border-radius:4px;
+    box-shadow: inset 0 0 0 2px rgba(0,0,0,0.6);
+    animation: censorFlash 0.9s steps(2, end) infinite;
+    font-weight:700;
+    letter-spacing:1px;
+  }
+  @keyframes censorFlash {
+    0% { background:#000; opacity:1; transform:translateY(0); }
+    40% { background:#0b0b0b; opacity:0.8; transform:translateY(-1px); }
+    80% { background:#000; opacity:1; transform:translateY(0); }
+    100% { background:#000; opacity:1; transform:translateY(0); }
+  }
+
+  ul#listaHistorico { padding-left: 16px; margin:6px 0 0 0; }
+  ul#listaHistorico li { margin-bottom:6px; }
 </style>
 </head>
 <body>
@@ -157,13 +179,36 @@ const somDesbloqueio = document.getElementById('somDesbloqueio');
 const somErro = document.getElementById('somErro');
 const painel = document.getElementById('painel');
 
-let historico = ['Quarto SOL 22 aberto']; // Histórico inicial
+/// MUDANÇA PRINCIPAL: histórico inicial já com entrada censurada + SOL22
+// observação: a entrada censurada é representada pelo token '__CENSORED__' e renderizada de forma especial
+let historico = ['__CENSORED__', 'Quarto SOL 22 aberto']; // Histórico inicial (censurado + SOL22)
+
+// mapa de nomes normalizados -> exibição
+const roomsMap = {
+  'lua13': 'Lua 13',
+  'sol22': 'SOL 22',
+  'castelo19': 'Castelo 19'
+};
+
+function normalizeRoom(s){
+  // remove espaços, acentos? (manter apenas alfanuméricos), minusculas
+  if(!s) return '';
+  // remove acentos
+  const semAcento = s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  // keep letters+numbers only, lowercase, remove spaces/hyphens/others
+  return semAcento.toLowerCase().replace(/[^a-z0-9]/g,'');
+}
 
 function atualizarHistorico() {
   listaHistorico.innerHTML = '';
-  historico.slice(-10).forEach(item => {
+  historico.slice(-20).forEach(item => {
     const li = document.createElement('li');
-    li.textContent = item;
+    if(item === '__CENSORED__'){
+      // renderiza entrada censurada animada
+      li.innerHTML = 'A porta <span class="censored">██████</span> foi desbloqueada.';
+    } else {
+      li.textContent = item;
+    }
     listaHistorico.appendChild(li);
   });
 }
@@ -185,23 +230,28 @@ modoAdminBtn.addEventListener('click', () => {
 });
 
 document.getElementById('desbloquearQuarto').addEventListener('click', () => {
-  const quarto = document.getElementById('nomeQuarto').value.trim();
-  if (!quarto) {
+  const quartoRaw = document.getElementById('nomeQuarto').value.trim();
+  if (!quartoRaw) {
     mensagem.textContent = 'Por favor, digite um quarto.';
     somErro.play();
     return;
   }
 
-  if (quarto.toLowerCase() === 'lua 13') {
-    mensagem.textContent = `✨ A porta do quarto ${quarto} foi desbloqueada! ✨`;
+  const key = normalizeRoom(quartoRaw);
+
+  if (roomsMap[key]) {
+    const displayName = roomsMap[key];
+    mensagem.textContent = `✨ A porta do quarto ${displayName} foi desbloqueada! ✨`;
     mensagem.classList.add('blink');
     painel.classList.add('brilho');
     somDesbloqueio.play();
-    historico.push(`Cliente desbloqueou: ${quarto}`);
+    historico.push(`Cliente desbloqueou: ${displayName}`);
     atualizarHistorico();
+    // limpa input e animação
     setTimeout(() => { mensagem.classList.remove('blink'); painel.classList.remove('brilho'); }, 1500);
+    document.getElementById('nomeQuarto').value = '';
   } else {
-    mensagem.textContent = `⚠ Quarto "${quarto}" não encontrado.`;
+    mensagem.textContent = `⚠ Quarto "${quartoRaw}" não encontrado.`;
     somErro.play();
   }
 });
@@ -215,26 +265,43 @@ document.getElementById('entrarAdmin').addEventListener('click', () => {
     painel.classList.add('brilho');
     somDesbloqueio.play();
     atualizarHistorico();
+    // limpa campo senha
+    document.getElementById('senhaAdmin').value = '';
   } else {
     mensagem.textContent = '❌ Senha incorreta.';
     somErro.play();
   }
 });
 
+// admin desbloqueio: agora verifica as mesmas portas válidas (case/space-insensitive)
 document.getElementById('desbloquearQuartoAdmin').addEventListener('click', () => {
-  const quarto = document.getElementById('quartoAdmin').value.trim();
-  if (!quarto) return;
+  const quartoRaw = document.getElementById('quartoAdmin').value.trim();
+  if (!quartoRaw) {
+    mensagem.textContent = 'Por favor, digite um quarto.';
+    somErro.play();
+    return;
+  }
 
-  mensagem.textContent = `✨ Porta do quarto ${quarto} desbloqueada pelo administrador!`;
-  mensagem.classList.add('blink');
-  painel.classList.add('brilho');
-  somDesbloqueio.play();
-  historico.push(`Administrador desbloqueou: ${quarto}`);
-  atualizarHistorico();
-  setTimeout(() => { mensagem.classList.remove('blink'); painel.classList.remove('brilho'); }, 1500);
+  const key = normalizeRoom(quartoRaw);
+
+  if (roomsMap[key]) {
+    const displayName = roomsMap[key];
+    mensagem.textContent = `✨ Porta do quarto ${displayName} desbloqueada pelo administrador!`;
+    mensagem.classList.add('blink');
+    painel.classList.add('brilho');
+    somDesbloqueio.play();
+    historico.push(`Administrador desbloqueou: ${displayName}`);
+    atualizarHistorico();
+    setTimeout(() => { mensagem.classList.remove('blink'); painel.classList.remove('brilho'); }, 1500);
+    document.getElementById('quartoAdmin').value = '';
+  } else {
+    // se não for uma das portas mapeadas, mantemos comportamento anterior: ainda permite desbloquear qualquer texto?
+    // você pediu que CASTELO19, SOL22 e LUA13 funcionem — para outros nomes, mantemos a mensagem de não encontrado.
+    mensagem.textContent = `⚠ Quarto "${quartoRaw}" não encontrado.`;
+    somErro.play();
+  }
 });
 </script>
 
 </body>
 </html>
-

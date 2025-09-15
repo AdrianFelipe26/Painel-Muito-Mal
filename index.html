@@ -14,7 +14,16 @@
     align-items: center;
     height: 100vh;
     margin: 0;
+    overflow: hidden;
   }
+
+  /* Fundo animado */
+  @keyframes fundoPisca {
+    0% { background-color: #1b0d2b; }
+    50% { background-color: #2e0f44; }
+    100% { background-color: #1b0d2b; }
+  }
+  body { animation: fundoPisca 6s infinite; }
 
   #painel {
     background-color: #2c143f;
@@ -24,11 +33,16 @@
     width: 350px;
     text-align: center;
     box-shadow: 0 0 20px #7a2fff;
+    transition: box-shadow 0.3s;
+  }
+
+  #painel.brilho {
+    box-shadow: 0 0 40px #d5aaff;
   }
 
   h1 {
     margin-bottom: 20px;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     color: #d5aaff;
     text-shadow: 0 0 5px #fff, 0 0 10px #7a2fff;
   }
@@ -49,12 +63,7 @@
 
   button:hover {
     background-color: #9f5fff;
-    animation: glow 1s infinite alternate;
-  }
-
-  @keyframes glow {
-    from { box-shadow: 0 0 10px #7a2fff; }
-    to { box-shadow: 0 0 20px #d5aaff; }
+    box-shadow: 0 0 20px #d5aaff;
   }
 
   input {
@@ -96,12 +105,13 @@
     font-size: 0.9rem;
     text-align: left;
   }
+
 </style>
 </head>
 <body>
 
 <div id="painel">
-  <h1>Painel do Hotel do Muito Mal, Muito Muito Muito Mal, Muito Muito Muito Muito Muito Mal.</h1>
+  <h1>Painel do Hotel do Muito Mal</h1>
   <div id="modos">
     <button id="modoClienteBtn">Modo Cliente</button>
     <button id="modoAdminBtn">Modo Administrador</button>
@@ -120,13 +130,13 @@
   </div>
 
   <div id="mensagem"></div>
-  <div id="historico" style="display:none;">
-    <strong>Histórico de portas:</strong>
+  <div id="historico">
+    <strong>Histórico Recente de Portas Abertas:</strong>
     <ul id="listaHistorico"></ul>
   </div>
 </div>
 
-<!-- Sons -->
+<!-- Sons (adicionar depois) -->
 <audio id="somDesbloqueio" src="desbloqueio.mp3"></audio>
 <audio id="somErro" src="erro.mp3"></audio>
 
@@ -140,8 +150,21 @@ const listaHistorico = document.getElementById('listaHistorico');
 const historicoDiv = document.getElementById('historico');
 const somDesbloqueio = document.getElementById('somDesbloqueio');
 const somErro = document.getElementById('somErro');
+const painel = document.getElementById('painel');
 
-let historico = [];
+let historico = ['Quarto SOL22 aberto']; // Histórico já vem preenchido
+
+function atualizarHistorico() {
+  listaHistorico.innerHTML = '';
+  historico.slice(-10).forEach(item => {
+    const li = document.createElement('li');
+    li.textContent = item;
+    listaHistorico.appendChild(li);
+  });
+}
+
+// Inicializa histórico
+atualizarHistorico();
 
 modoClienteBtn.addEventListener('click', () => {
   cliente.style.display = 'block';
@@ -166,10 +189,11 @@ document.getElementById('desbloquearQuarto').addEventListener('click', () => {
   if (quarto.toLowerCase() === 'lua 13') {
     mensagem.textContent = `✨ A porta do quarto ${quarto} foi desbloqueada! ✨`;
     mensagem.classList.add('blink');
+    painel.classList.add('brilho');
     somDesbloqueio.play();
     historico.push(`Cliente desbloqueou: ${quarto}`);
     atualizarHistorico();
-    setTimeout(() => mensagem.classList.remove('blink'), 1500);
+    setTimeout(() => { mensagem.classList.remove('blink'); painel.classList.remove('brilho'); }, 1500);
   } else {
     mensagem.textContent = `⚠ Quarto "${quarto}" não encontrado.`;
     somErro.play();
@@ -181,6 +205,7 @@ document.getElementById('entrarAdmin').addEventListener('click', () => {
   if (senha === '135') {
     mensagem.textContent = '🔓 Modo administrador ativado!';
     historicoDiv.style.display = 'block';
+    painel.classList.add('brilho');
     somDesbloqueio.play();
     atualizarHistorico();
 
@@ -190,9 +215,10 @@ document.getElementById('entrarAdmin').addEventListener('click', () => {
         historico.push(`Administrador desbloqueou: ${quarto}`);
         mensagem.textContent = `✨ Porta do quarto ${quarto} desbloqueada pelo administrador!`;
         mensagem.classList.add('blink');
+        painel.classList.add('brilho');
         somDesbloqueio.play();
         atualizarHistorico();
-        setTimeout(() => mensagem.classList.remove('blink'), 1500);
+        setTimeout(() => { mensagem.classList.remove('blink'); painel.classList.remove('brilho'); }, 1500);
       }
     }, 200);
   } else {
@@ -200,17 +226,7 @@ document.getElementById('entrarAdmin').addEventListener('click', () => {
     somErro.play();
   }
 });
-
-function atualizarHistorico() {
-  listaHistorico.innerHTML = '';
-  historico.slice(-10).forEach(item => {
-    const li = document.createElement('li');
-    li.textContent = item;
-    listaHistorico.appendChild(li);
-  });
-}
 </script>
 
 </body>
 </html>
-

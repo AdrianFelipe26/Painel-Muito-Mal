@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Hotel do Muito Mal</title>
+<style>
+  body {
+    background-color: #1b0d2b;
+    color: #f0d7ff;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+
+  #painel {
+    background-color: #2c143f;
+    border: 4px solid #7a2fff;
+    border-radius: 20px;
+    padding: 30px;
+    width: 350px;
+    text-align: center;
+    box-shadow: 0 0 20px #7a2fff;
+  }
+
+  h1 {
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    color: #d5aaff;
+    text-shadow: 0 0 5px #fff, 0 0 10px #7a2fff;
+  }
+
+  button {
+    background-color: #7a2fff;
+    color: #fff;
+    border: none;
+    padding: 12px 18px;
+    margin: 10px 5px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    transition: 0.3s;
+    box-shadow: 0 0 10px #7a2fff;
+  }
+
+  button:hover {
+    background-color: #9f5fff;
+    animation: glow 1s infinite alternate;
+  }
+
+  @keyframes glow {
+    from { box-shadow: 0 0 10px #7a2fff; }
+    to { box-shadow: 0 0 20px #d5aaff; }
+  }
+
+  input {
+    width: 80%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 2px solid #7a2fff;
+    margin-top: 10px;
+    background-color: #3b1f55;
+    color: #fff;
+    font-weight: bold;
+    font-size: 1rem;
+    text-align: center;
+  }
+
+  #mensagem {
+    margin-top: 20px;
+    font-weight: bold;
+    font-size: 1rem;
+    color: #ffdf00;
+    text-shadow: 0 0 5px #fff, 0 0 10px #ffdf00;
+  }
+
+  .blink {
+    animation: blinkText 0.7s steps(1) infinite;
+  }
+
+  @keyframes blinkText {
+    50% { opacity: 0; }
+  }
+
+  #historico {
+    margin-top: 20px;
+    background-color: #3b1f55;
+    padding: 10px;
+    border-radius: 8px;
+    max-height: 120px;
+    overflow-y: auto;
+    font-size: 0.9rem;
+    text-align: left;
+  }
+</style>
+</head>
+<body>
+
+<div id="painel">
+  <h1>Painel Hotel do Muito Mal, Muito Muito Muito Mal, Muito Muito Muito Muito Muito Mal.</h1>
+  <div id="modos">
+    <button id="modoClienteBtn">Modo Cliente</button>
+    <button id="modoAdminBtn">Modo Administrador</button>
+  </div>
+
+  <div id="cliente" style="display:none;">
+    <p>Digite o nome do seu quarto:</p>
+    <input type="text" id="nomeQuarto" placeholder="Ex: Lua 13">
+    <button id="desbloquearQuarto">Desbloquear</button>
+  </div>
+
+  <div id="admin" style="display:none;">
+    <p>Digite a senha de administrador:</p>
+    <input type="password" id="senhaAdmin" placeholder="Senha">
+    <button id="entrarAdmin">Entrar</button>
+  </div>
+
+  <div id="mensagem"></div>
+  <div id="historico" style="display:none;">
+    <strong>Histórico de portas:</strong>
+    <ul id="listaHistorico"></ul>
+  </div>
+</div>
+
+<!-- Sons -->
+<audio id="somDesbloqueio" src="desbloqueio.mp3"></audio>
+<audio id="somErro" src="erro.mp3"></audio>
+
+<script>
+const modoClienteBtn = document.getElementById('modoClienteBtn');
+const modoAdminBtn = document.getElementById('modoAdminBtn');
+const cliente = document.getElementById('cliente');
+const admin = document.getElementById('admin');
+const mensagem = document.getElementById('mensagem');
+const listaHistorico = document.getElementById('listaHistorico');
+const historicoDiv = document.getElementById('historico');
+const somDesbloqueio = document.getElementById('somDesbloqueio');
+const somErro = document.getElementById('somErro');
+
+let historico = [];
+
+modoClienteBtn.addEventListener('click', () => {
+  cliente.style.display = 'block';
+  admin.style.display = 'none';
+  mensagem.textContent = '';
+});
+
+modoAdminBtn.addEventListener('click', () => {
+  admin.style.display = 'block';
+  cliente.style.display = 'none';
+  mensagem.textContent = '';
+});
+
+document.getElementById('desbloquearQuarto').addEventListener('click', () => {
+  const quarto = document.getElementById('nomeQuarto').value.trim();
+  if (!quarto) {
+    mensagem.textContent = 'Por favor, digite um quarto.';
+    somErro.play();
+    return;
+  }
+
+  if (quarto.toLowerCase() === 'lua 13') {
+    mensagem.textContent = `✨ A porta do quarto ${quarto} foi desbloqueada! ✨`;
+    mensagem.classList.add('blink');
+    somDesbloqueio.play();
+    historico.push(`Cliente desbloqueou: ${quarto}`);
+    atualizarHistorico();
+    setTimeout(() => mensagem.classList.remove('blink'), 1500);
+  } else {
+    mensagem.textContent = `⚠ Quarto "${quarto}" não encontrado.`;
+    somErro.play();
+  }
+});
+
+document.getElementById('entrarAdmin').addEventListener('click', () => {
+  const senha = document.getElementById('senhaAdmin').value.trim();
+  if (senha === '135') {
+    mensagem.textContent = '🔓 Modo administrador ativado!';
+    historicoDiv.style.display = 'block';
+    somDesbloqueio.play();
+    atualizarHistorico();
+
+    setTimeout(() => {
+      const quarto = prompt('Digite o quarto que deseja desbloquear:');
+      if (quarto) {
+        historico.push(`Administrador desbloqueou: ${quarto}`);
+        mensagem.textContent = `✨ Porta do quarto ${quarto} desbloqueada pelo administrador!`;
+        mensagem.classList.add('blink');
+        somDesbloqueio.play();
+        atualizarHistorico();
+        setTimeout(() => mensagem.classList.remove('blink'), 1500);
+      }
+    }, 200);
+  } else {
+    mensagem.textContent = '❌ Senha incorreta.';
+    somErro.play();
+  }
+});
+
+function atualizarHistorico() {
+  listaHistorico.innerHTML = '';
+  historico.slice(-10).forEach(item => {
+    const li = document.createElement('li');
+    li.textContent = item;
+    listaHistorico.appendChild(li);
+  });
+}
+</script>
+
+</body>
+</html>
